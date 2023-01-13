@@ -1,6 +1,5 @@
 import { useCallback, useState } from 'react';
 import fetch from 'unfetch';
-import { useNotify } from 'react-admin';
 import { isMatch } from 'matcher';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -12,7 +11,6 @@ export const useSupabaseStorage = (
   accept?: string | string[],
 ) => {
   const [isUploading, setIsUploading] = useState(false);
-  const notify = useNotify();
 
   const getFileLocation = useCallback(
     (fileName: string) => {
@@ -46,9 +44,7 @@ export const useSupabaseStorage = (
       }
 
       if (accept && !isMatch(file.type, accept)) {
-        notify(`Not an accepted file type: ${file.type}`, {
-          type: 'error',
-        });
+        throw new Error(`Not an accepted file type: ${file.type}`);
       }
 
       const { error } = await supabase.storage
@@ -60,13 +56,10 @@ export const useSupabaseStorage = (
         });
 
       if (error) {
-        console.error(error);
-        notify(`Failed to upload file: ${error.message}`, {
-          type: 'error',
-        });
+        throw new Error(`Failed to upload file: ${error.message}`);
       }
     },
-    [notify, supabase, bucket, getFileLocation, accept],
+    [supabase, bucket, getFileLocation, accept],
   );
 
   const upload = async (file: File) => {
@@ -77,9 +70,9 @@ export const useSupabaseStorage = (
     try {
       await uploadImage(publicImageUrl, file);
     } catch (err) {
-      notify('Failed to upload image', {
-        type: 'error',
-      });
+      setIsUploading(false);
+
+      throw err;
     }
 
     setIsUploading(false);

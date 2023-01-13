@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { FileInput, RaRecord, useCreate } from 'react-admin';
+import { FileInput, RaRecord, useCreate, useNotify } from 'react-admin';
 import { LinearProgress } from '@mui/material';
 import type { MediaLibraryInputUploadOptions } from './types';
 import { useSupabaseStorage } from './useSupabaseStorage';
@@ -25,13 +25,22 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   );
 
   const [create] = useCreate();
+  const notify = useNotify();
 
   const onChange = async (file?: File) => {
     if (!file) {
       return;
     }
 
-    const data = await upload(file);
+    let data;
+
+    try {
+      data = await upload(file);
+    } catch (err) {
+      notify(err.message, { type: 'error' });
+
+      return;
+    }
 
     create(
       resource,
