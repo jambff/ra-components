@@ -1,12 +1,6 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, ReactNode, useCallback, useState } from 'react';
 import fetch from 'unfetch';
-import {
-  FileInput,
-  ImageField,
-  useRecordContext,
-  useNotify,
-  Validator,
-} from 'react-admin';
+import { FileInput, useRecordContext, useNotify, Validator } from 'react-admin';
 import { createClient } from '@supabase/supabase-js';
 
 export const getSupabaseClient = (
@@ -16,14 +10,15 @@ export const getSupabaseClient = (
 
 type SupabaseFileInputProps = {
   bucket: string;
+  bucketFolder?: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
   source: string;
-  imageFolder?: string;
   label?: string;
   accept?: string;
   validate?: Validator | Validator[];
   maxSize?: number;
+  children?: ReactNode;
 };
 
 const getValidators = (
@@ -46,39 +41,40 @@ const getValidators = (
 export const SupabaseFileInput: FC<SupabaseFileInputProps> = ({
   supabaseUrl,
   supabaseAnonKey,
-  imageFolder,
+  bucket,
+  bucketFolder,
   label,
   accept,
   source,
   validate,
   maxSize,
-  bucket,
+  children,
 }: SupabaseFileInputProps) => {
   const record = useRecordContext();
-  const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
   const notify = useNotify();
   const supabase = getSupabaseClient(supabaseUrl, supabaseAnonKey);
 
-  const getImageLocation = useCallback(
+  const getFileLocation = useCallback(
     (fileName: string) => {
-      if (!imageFolder) {
+      if (!bucketFolder) {
         return fileName;
       }
 
-      return `${imageFolder}/${fileName}`;
+      return `${bucketFolder}/${fileName}`;
     },
-    [imageFolder],
+    [bucketFolder],
   );
 
   const getPublicImageUrl = useCallback(
     (fileName: string) => {
       const { data } = supabase.storage
         .from(bucket)
-        .getPublicUrl(getImageLocation(fileName));
+        .getPublicUrl(getFileLocation(fileName));
 
       return data.publicUrl;
     },
-    [supabase, bucket, getImageLocation],
+    [supabase, bucket, getFileLocation],
   );
 
   const uploadImage = useCallback(
@@ -91,7 +87,7 @@ export const SupabaseFileInput: FC<SupabaseFileInputProps> = ({
 
       const { error } = await supabase.storage
         .from(bucket)
-        .upload(getImageLocation(file.name), file, {
+        .upload(getFileLocation(file.name), file, {
           cacheControl: '3600',
           upsert: false,
           contentType: file.type,
@@ -99,21 +95,21 @@ export const SupabaseFileInput: FC<SupabaseFileInputProps> = ({
 
       if (error) {
         console.error(error);
-        notify(`Failed to upload image: ${error.message}`, {
+        notify(`Failed to upload file: ${error.message}`, {
           type: 'error',
         });
       }
     },
-    [notify, supabase, bucket, getImageLocation],
+    [notify, supabase, bucket, getFileLocation],
   );
 
   const validateUpload = useCallback(() => {
-    if (!uploadingImage) {
+    if (!uploadingFile) {
       return;
     }
 
     return 'Please wait for the file to finish uploading';
-  }, [uploadingImage]);
+  }, [uploadingFile]);
 
   return (
     <FileInput
@@ -123,11 +119,15 @@ export const SupabaseFileInput: FC<SupabaseFileInputProps> = ({
       maxSize={maxSize}
       validate={getValidators(validateUpload, validate)}
       parse={(value) => {
+        if (!value) {
+          return;
+        }
+
         const publicImageUrl = getPublicImageUrl(value.name);
 
-        setUploadingImage(true);
+        setUploadingFile(true);
         uploadImage(publicImageUrl, value).then(() => {
-          setUploadingImage(false);
+          setUploadingFile(false);
         });
 
         return publicImageUrl;
@@ -139,7 +139,7 @@ export const SupabaseFileInput: FC<SupabaseFileInputProps> = ({
 
         return record;
       }}>
-      <ImageField source={source} record={record} />
+      {children}
     </FileInput>
   );
 };

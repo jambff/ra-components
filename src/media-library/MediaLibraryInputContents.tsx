@@ -23,7 +23,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
     id: field.value,
   });
 
-  const { src } = data ?? {};
+  const { src, title } = data ?? {};
 
   if (hasError) {
     return (
@@ -51,6 +51,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
       />
       <MediaLibraryImageButton
         src={src}
+        title={title}
         onImageError={() => {
           setHasError(true);
         }}
