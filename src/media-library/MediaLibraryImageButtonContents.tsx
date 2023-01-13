@@ -17,12 +17,6 @@ export const MediaLibraryImageButtonContents: FC<
     setHasError(true);
   };
 
-  if (hasError) {
-    return (
-      <BrokenImage fontSize="large" sx={{ color: theme.palette.grey[500] }} />
-    );
-  }
-
   if (src) {
     return (
       <img
@@ -36,6 +30,12 @@ export const MediaLibraryImageButtonContents: FC<
         }}
         alt=""
       />
+    );
+  }
+
+  if (hasError) {
+    return (
+      <BrokenImage fontSize="large" sx={{ color: theme.palette.grey[500] }} />
     );
   }
 
