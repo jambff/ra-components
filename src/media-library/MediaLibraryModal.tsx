@@ -20,9 +20,10 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
   onMediaLibrarySelect,
 }: MediaLibraryModalProps) => {
   const theme = useTheme();
+  const titleId = `medial-library-${reference}-${source}`;
 
   return (
-    <Modal open={open}>
+    <Modal open={open} aria-labelledby={titleId}>
       <Box
         sx={{
           bgcolor: 'background.paper',
@@ -54,7 +55,7 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
               justifyContent: 'space-between',
               padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
             }}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
+            <Typography id={titleId} variant="h6" component="h2">
               Select image
             </Typography>
             <div>
