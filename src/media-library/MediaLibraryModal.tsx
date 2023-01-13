@@ -1,5 +1,5 @@
 import { FC, SyntheticEvent, useState } from 'react';
-import { Button, RaRecord } from 'react-admin';
+import { Button, RaRecord, SortPayload } from 'react-admin';
 import { useTheme, Typography, Modal, Box, Tab, Tabs } from '@mui/material';
 import Close from '@mui/icons-material/Close';
 import { MediaLibraryTabPanel } from './MediaLibraryTabPanel';
@@ -16,6 +16,7 @@ type MediaLibraryModalProps = {
   onImageSelect: (newRecord: RaRecord) => void;
   aspectRatio?: string;
   uploadOptions?: MediaLibraryInputUploadOptions;
+  sort?: SortPayload;
 };
 
 export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
@@ -26,6 +27,7 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
   onImageSelect,
   aspectRatio,
   uploadOptions,
+  sort,
 }: MediaLibraryModalProps) => {
   const theme = useTheme();
   const titleId = `medial-library-${reference}-${source}`;
@@ -98,6 +100,7 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
             source={source}
             onImageSelect={onImageSelect}
             aspectRatio={aspectRatio}
+            sort={sort}
           />
         </MediaLibraryTabPanel>
         {!!uploadOptions?.supabase && (

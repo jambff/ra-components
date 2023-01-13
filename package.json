@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "change-case": "^4.1.2",
+    "matcher": "^5.0.0",
     "pluralize": "^8.0.0",
     "unfetch": "^5.0.0"
   },

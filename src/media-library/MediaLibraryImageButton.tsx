@@ -1,17 +1,16 @@
 import { FC } from 'react';
 import { Button } from 'react-admin';
+import { MediaLibraryImageButtonContents } from './MediaLibraryImageButtonContents';
 
 type MediaLibraryImageButtonProps = {
   src?: string;
   title: string;
-  onImageError?: () => void;
   onClick: () => void;
 };
 
 export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
   src,
   title,
-  onImageError,
   onClick,
 }: MediaLibraryImageButtonProps) => (
   <Button
@@ -24,20 +23,6 @@ export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
       height: '100%',
       '.MuiButton-startIcon': { margin: 0 },
     }}>
-    {src ? (
-      <img
-        src={src}
-        title={title}
-        onError={onImageError}
-        style={{
-          objectFit: 'contain',
-          width: '100%',
-          maxHeight: '100%',
-        }}
-        alt=""
-      />
-    ) : (
-      <>Click to select an image</>
-    )}
+    <MediaLibraryImageButtonContents src={src} title={title} />
   </Button>
 );

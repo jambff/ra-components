@@ -1,13 +1,15 @@
 import { useCallback, useState } from 'react';
 import fetch from 'unfetch';
 import { useNotify } from 'react-admin';
+import { isMatch } from 'matcher';
+
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const useSupabaseStorage = (
   supabase: SupabaseClient,
   bucket: string,
   bucketFolder?: string,
-  accept?: string[],
+  accept?: string | string[],
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const notify = useNotify();
@@ -43,7 +45,7 @@ export const useSupabaseStorage = (
         return;
       }
 
-      if (accept && !accept.includes(file.type)) {
+      if (accept && !isMatch(file.type, accept)) {
         notify(`Not an accepted file type: ${file.type}`, {
           type: 'error',
         });

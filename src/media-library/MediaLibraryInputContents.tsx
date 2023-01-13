@@ -1,7 +1,5 @@
 import { FC, useState } from 'react';
-import { RaRecord, useInput, useGetOne } from 'react-admin';
-import { useTheme } from '@mui/material';
-import BrokenImage from '@mui/icons-material/BrokenImage';
+import { RaRecord, useInput, useGetOne, SortPayload } from 'react-admin';
 import { MediaLibraryModal } from './MediaLibraryModal';
 import { MediaLibraryImageButton } from './MediaLibraryImageButton';
 import type { MediaLibraryInputUploadOptions } from './types';
@@ -11,6 +9,7 @@ type MediaLibraryInputContentsProps = {
   reference: string;
   aspectRatio?: string;
   uploadOptions?: MediaLibraryInputUploadOptions;
+  sort?: SortPayload;
 };
 
 export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
@@ -18,10 +17,9 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
   reference,
   aspectRatio,
   uploadOptions,
+  sort,
 }: MediaLibraryInputContentsProps) => {
   const { field } = useInput({ source });
-  const theme = useTheme();
-  const [hasError, setHasError] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const onClose = () => {
@@ -31,10 +29,6 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
   const onImageSelect = (selectedRecord: RaRecord) => {
     field.onChange(selectedRecord.id);
     setModalOpen(false);
-  };
-
-  const onImageError = () => {
-    setHasError(true);
   };
 
   const onImageClick = () => {
@@ -47,12 +41,6 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
 
   const { src, title } = data ?? {};
 
-  if (hasError) {
-    return (
-      <BrokenImage fontSize="large" sx={{ color: theme.palette.grey[500] }} />
-    );
-  }
-
   return (
     <>
       <MediaLibraryModal
@@ -63,13 +51,9 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
         aspectRatio={aspectRatio}
         onImageSelect={onImageSelect}
         uploadOptions={uploadOptions}
+        sort={sort}
       />
-      <MediaLibraryImageButton
-        src={src}
-        title={title}
-        onImageError={onImageError}
-        onClick={onImageClick}
-      />
+      <MediaLibraryImageButton src={src} title={title} onClick={onImageClick} />
     </>
   );
 };

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { List, RaRecord } from 'react-admin';
+import { List, RaRecord, SortPayload } from 'react-admin';
 import { MediaLibraryModalList } from './MediaLibraryModalList';
 
 type MediaLibrarySelectPanelProps = {
@@ -7,6 +7,7 @@ type MediaLibrarySelectPanelProps = {
   reference: string;
   onImageSelect: (newRecord: RaRecord) => void;
   aspectRatio?: string;
+  sort?: SortPayload;
 };
 
 export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
@@ -14,12 +15,14 @@ export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
   reference,
   onImageSelect,
   aspectRatio,
+  sort,
 }: MediaLibrarySelectPanelProps) => (
   <List
     resource={reference}
     actions={false}
     perPage={40}
     storeKey={`media-library-${reference}-${source}`}
+    sort={sort}
     sx={{
       flex: 1,
       '.MuiPaper-root': { borderRadius: 0, flex: 1 },
