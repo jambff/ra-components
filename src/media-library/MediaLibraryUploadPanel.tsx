@@ -21,6 +21,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     supabase,
     bucket,
     bucketFolder,
+    accept,
   );
 
   const [create] = useCreate();
@@ -46,12 +47,6 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   }
 
   return (
-    <FileInput
-      source=""
-      label=" "
-      accept={accept}
-      maxSize={maxSize}
-      onChange={onChange}
-    />
+    <FileInput source="" label=" " maxSize={maxSize} onChange={onChange} />
   );
 };

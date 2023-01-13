@@ -5,6 +5,6 @@ export type MediaLibraryInputUploadOptions = {
   resource: string;
   bucket: string;
   bucketFolder?: string;
-  accept?: string;
+  accept?: string[];
   maxSize?: number;
 };

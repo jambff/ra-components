@@ -7,6 +7,7 @@ export const useSupabaseStorage = (
   supabase: SupabaseClient,
   bucket: string,
   bucketFolder?: string,
+  accept?: string[],
 ) => {
   const [isUploading, setIsUploading] = useState(false);
   const notify = useNotify();
@@ -42,6 +43,12 @@ export const useSupabaseStorage = (
         return;
       }
 
+      if (accept && !accept.includes(file.type)) {
+        notify(`Not an accepted file type: ${file.type}`, {
+          type: 'error',
+        });
+      }
+
       const { error } = await supabase.storage
         .from(bucket)
         .upload(getFileLocation(file.name), file, {
@@ -57,7 +64,7 @@ export const useSupabaseStorage = (
         });
       }
     },
-    [notify, supabase, bucket, getFileLocation],
+    [notify, supabase, bucket, getFileLocation, accept],
   );
 
   const upload = async (file: File) => {
