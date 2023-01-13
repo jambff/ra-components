@@ -3,12 +3,14 @@ import { Button } from 'react-admin';
 
 type MediaLibraryImageButtonProps = {
   src: string;
+  title: string;
   onImageError?: () => void;
   onClick: () => void;
 };
 
 export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
   src,
+  title,
   onImageError,
   onClick,
 }: MediaLibraryImageButtonProps) => (
@@ -22,6 +24,7 @@ export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
     }}>
     <img
       src={src}
+      title={title}
       onError={onImageError}
       style={{
         objectFit: 'contain',

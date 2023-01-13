@@ -41,6 +41,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
           }}>
           <MediaLibraryImageButton
             src={record.src}
+            title={record.title}
             onClick={() => {
               onMediaLibrarySelect(record);
             }}
