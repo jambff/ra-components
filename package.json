@@ -32,6 +32,7 @@
   },
   "peerDependencies": {
     "@mui/material": "^5.0.0",
+    "@mui/icons-material": "^5.0.0",
     "next": "*",
     "react": "*",
     "react-admin": "^4.0.0",
