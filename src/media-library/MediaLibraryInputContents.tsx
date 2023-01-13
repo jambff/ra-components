@@ -4,20 +4,42 @@ import { useTheme } from '@mui/material';
 import BrokenImage from '@mui/icons-material/BrokenImage';
 import { MediaLibraryModal } from './MediaLibraryModal';
 import { MediaLibraryImageButton } from './MediaLibraryImageButton';
+import type { MediaLibraryInputUploadOptions } from './types';
 
 type MediaLibraryInputContentsProps = {
   source: string;
   reference: string;
+  aspectRatio?: string;
+  uploadOptions?: MediaLibraryInputUploadOptions;
 };
 
 export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
   source,
   reference,
+  aspectRatio,
+  uploadOptions,
 }: MediaLibraryInputContentsProps) => {
   const { field } = useInput({ source });
   const theme = useTheme();
   const [hasError, setHasError] = useState<boolean>(false);
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+  const onClose = () => {
+    setModalOpen(false);
+  };
+
+  const onImageSelect = (selectedRecord: RaRecord) => {
+    field.onChange(selectedRecord.id);
+    setModalOpen(false);
+  };
+
+  const onImageError = () => {
+    setHasError(true);
+  };
+
+  const onImageClick = () => {
+    setModalOpen(true);
+  };
 
   const { data } = useGetOne(reference, {
     id: field.value,
@@ -31,33 +53,22 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
     );
   }
 
-  if (!src) {
-    return null;
-  }
-
   return (
     <>
       <MediaLibraryModal
         open={modalOpen}
-        close={() => {
-          setModalOpen(false);
-        }}
+        close={onClose}
         source={source}
         reference={reference}
-        onMediaLibrarySelect={(selectedRecord: RaRecord) => {
-          field.onChange(selectedRecord.id);
-          setModalOpen(false);
-        }}
+        aspectRatio={aspectRatio}
+        onImageSelect={onImageSelect}
+        uploadOptions={uploadOptions}
       />
       <MediaLibraryImageButton
         src={src}
         title={title}
-        onImageError={() => {
-          setHasError(true);
-        }}
-        onClick={() => {
-          setModalOpen(true);
-        }}
+        onImageError={onImageError}
+        onClick={onImageClick}
       />
     </>
   );

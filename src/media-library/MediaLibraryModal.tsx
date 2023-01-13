@@ -1,15 +1,21 @@
-import { FC } from 'react';
-import { Button, List, RaRecord, SortButton } from 'react-admin';
-import { useTheme, Typography, Modal, Box } from '@mui/material';
+import { FC, SyntheticEvent, useState } from 'react';
+import { Button, RaRecord } from 'react-admin';
+import { useTheme, Typography, Modal, Box, Tab, Tabs } from '@mui/material';
 import Close from '@mui/icons-material/Close';
-import { MediaLibraryModalList } from './MediaLibraryModalList';
+import { MediaLibraryTabPanel } from './MediaLibraryTabPanel';
+import { getTabIds } from './utils';
+import { MediaLibraryUploadPanel } from './MediaLibraryUploadPanel';
+import { MediaLibrarySelectPanel } from './MediaLibrarySelectPanel';
+import type { MediaLibraryInputUploadOptions } from './types';
 
 type MediaLibraryModalProps = {
   open: boolean;
   source: string;
   reference: string;
   close: () => void;
-  onMediaLibrarySelect: (newRecord: RaRecord) => void;
+  onImageSelect: (newRecord: RaRecord) => void;
+  aspectRatio?: string;
+  uploadOptions?: MediaLibraryInputUploadOptions;
 };
 
 export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
@@ -17,10 +23,17 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
   source,
   reference,
   close,
-  onMediaLibrarySelect,
+  onImageSelect,
+  aspectRatio,
+  uploadOptions,
 }: MediaLibraryModalProps) => {
   const theme = useTheme();
   const titleId = `medial-library-${reference}-${source}`;
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const onTabChange = (_event: SyntheticEvent, newIndex: number) => {
+    setTabIndex(newIndex);
+  };
 
   return (
     <Modal open={open} aria-labelledby={titleId}>
@@ -38,41 +51,63 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
           outline: 0,
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'auto',
+          overflow: 'hidden',
         }}>
-        <List
-          resource={reference}
-          actions={false}
-          perPage={40}
-          storeKey={`media-modal-${reference}-${source}`}
-          sx={{
-            flex: 1,
-            '.MuiPaper-root': { borderRadius: 0, flex: 1 },
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            padding: `${theme.spacing(2)} ${theme.spacing(3)} 0 ${theme.spacing(
+              3,
+            )}`,
           }}>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: `${theme.spacing(2)} ${theme.spacing(3)}`,
-            }}>
-            <Typography id={titleId} variant="h6" component="h2">
-              Select image
-            </Typography>
-            <div>
-              <SortButton fields={['createdAt']} />
-              <Button
-                onClick={close}
-                label="Close"
-                endIcon={<Close />}
-                sx={{
-                  marginLeft: theme.spacing(2),
-                }}
-              />
-            </div>
+          <Typography id={titleId} variant="h6" component="h2">
+            Add media
+          </Typography>
+          <div>
+            {/* {tabIndex === 1 && <SortButton fields={['createdAt']} />} */}
+            <Button
+              onClick={close}
+              label="Close"
+              endIcon={<Close />}
+              sx={{
+                marginLeft: theme.spacing(2),
+              }}
+            />
           </div>
-
-          <MediaLibraryModalList onMediaLibrarySelect={onMediaLibrarySelect} />
-        </List>
+        </div>
+        <Tabs
+          value={tabIndex}
+          onChange={onTabChange}
+          sx={{ px: theme.spacing(1) }}
+          aria-label="Media library">
+          <Tab
+            label="Media library"
+            aria-controls={getTabIds(0).tabPanelId}
+            id={getTabIds(1).tabId}
+          />
+          <Tab
+            label="Upload files"
+            aria-controls={getTabIds(1).tabPanelId}
+            id={getTabIds(0).tabId}
+          />
+        </Tabs>
+        <MediaLibraryTabPanel value={tabIndex} index={0}>
+          <MediaLibrarySelectPanel
+            reference={reference}
+            source={source}
+            onImageSelect={onImageSelect}
+            aspectRatio={aspectRatio}
+          />
+        </MediaLibraryTabPanel>
+        {!!uploadOptions?.supabase && (
+          <MediaLibraryTabPanel value={tabIndex} index={1}>
+            <MediaLibraryUploadPanel
+              {...uploadOptions}
+              onImageSelect={onImageSelect}
+            />
+          </MediaLibraryTabPanel>
+        )}
       </Box>
     </Modal>
   );

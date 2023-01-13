@@ -1,16 +1,16 @@
 import { FC } from 'react';
 import { RaRecord, useListContext } from 'react-admin';
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { MediaLibraryImageButton } from './MediaLibraryImageButton';
 
 type MediaLibraryModalListProps = {
-  onMediaLibrarySelect: (record: RaRecord) => void;
+  aspectRatio?: string;
+  onImageSelect: (record: RaRecord) => void;
 };
 
-const IMAGE_DIMENSIONS = 130;
-
 export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
-  onMediaLibrarySelect,
+  aspectRatio = '3 / 2',
+  onImageSelect,
 }: MediaLibraryModalListProps) => {
   const { data } = useListContext();
   const theme = useTheme();
@@ -20,34 +20,50 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
   }
 
   return (
-    <div
-      style={{
-        padding: `0 ${theme.spacing(4)}`,
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 15,
-        flex: 1,
+    <Box
+      component="ul"
+      sx={{
+        padding: 0,
+        display: 'grid',
+        gridTemplateColumns: {
+          xs: 'repeat(2, 1fr)',
+          md: 'repeat(4, 1fr)',
+          lg: 'repeat(5, 1fr)',
+          xl: 'repeat(8, 1fr)',
+        },
+        gridGap: theme.spacing(2),
+        px: theme.spacing(2),
       }}>
       {data?.map((record) => (
-        <div
+        <Box
           key={record.src}
-          style={{
-            width: IMAGE_DIMENSIONS,
-            height: IMAGE_DIMENSIONS,
-            border: `1px solid ${theme.palette.grey[300]}`,
+          component="li"
+          sx={{
+            width: '100%',
+            height: 'auto',
+            listStyle: 'none',
+            userSelect: 'none',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            border: `1px solid ${theme.palette.grey[300]}`,
+            aspectRatio,
           }}>
-          <MediaLibraryImageButton
-            src={record.src}
-            title={record.title}
-            onClick={() => {
-              onMediaLibrarySelect(record);
-            }}
-          />
-        </div>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <MediaLibraryImageButton
+              src={record.src}
+              title={record.title}
+              onClick={() => {
+                onImageSelect(record);
+              }}
+            />
+          </div>
+        </Box>
       ))}
-    </div>
+    </Box>
   );
 };
