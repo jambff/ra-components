@@ -2,18 +2,18 @@ import { FC } from 'react';
 import { RaRecord, useListContext } from 'react-admin';
 import { Box, useTheme } from '@mui/material';
 import { MediaLibraryImageButton } from './MediaLibraryImageButton';
+import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 type MediaLibraryModalListProps = {
-  aspectRatio?: string;
   onImageSelect: (record: RaRecord) => void;
 };
 
 export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
-  aspectRatio = '3 / 2',
   onImageSelect,
 }: MediaLibraryModalListProps) => {
   const { data } = useListContext();
   const theme = useTheme();
+  const { aspectRatio = '3 / 2' } = useMediaLibraryContext();
 
   if (!data) {
     return null;

@@ -1,2 +1,3 @@
 export { MediaLibraryInput } from './MediaLibraryInput';
-export { MediaLibraryInputUploadOptions } from './types';
+export { MediaLibraryOptions } from './options';
+export { MediaLibraryProvider } from './MediaLibraryProvider';

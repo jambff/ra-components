@@ -1,25 +1,17 @@
 import { FC } from 'react';
-import { Labeled, SortPayload, WrapperField } from 'react-admin';
+import { Labeled, WrapperField } from 'react-admin';
 import { useTheme } from '@mui/material';
 import { MediaLibraryInputContents } from './MediaLibraryInputContents';
-import type { MediaLibraryInputUploadOptions } from './types';
+import type { MediaLibraryOptions } from './options';
 
-type MediaLibraryInputProps = {
-  source: string;
-  reference: string;
+type MediaLibraryInputProps = Partial<MediaLibraryOptions> & {
   label?: string;
-  aspectRatio?: string;
-  uploadOptions?: MediaLibraryInputUploadOptions;
-  sort?: SortPayload;
+  source: string;
 };
 
 export const MediaLibraryInput: FC<MediaLibraryInputProps> = ({
-  source,
   label,
-  reference,
-  aspectRatio,
-  uploadOptions,
-  sort,
+  source,
 }: MediaLibraryInputProps) => {
   const theme = useTheme();
 
@@ -36,13 +28,7 @@ export const MediaLibraryInput: FC<MediaLibraryInputProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <MediaLibraryInputContents
-            source={source}
-            reference={reference}
-            aspectRatio={aspectRatio}
-            uploadOptions={uploadOptions}
-            sort={sort}
-          />
+          <MediaLibraryInputContents source={source} />
         </div>
       </WrapperField>
     </Labeled>

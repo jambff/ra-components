@@ -1,29 +1,18 @@
 import { FC } from 'react';
 import { FileInput, RaRecord, useCreate, useNotify } from 'react-admin';
 import { LinearProgress } from '@mui/material';
-import type { MediaLibraryInputUploadOptions } from './types';
 import { useSupabaseStorage } from './useSupabaseStorage';
+import { useMediaLibraryContext } from './MediaLibraryProvider';
 
-type MediaLibraryUploadPanelProps = MediaLibraryInputUploadOptions & {
+type MediaLibraryUploadPanelProps = {
   onImageSelect: (newRecord: RaRecord) => void;
 };
 
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
-  supabase,
-  bucket,
-  bucketFolder,
-  accept,
-  maxSize,
-  resource,
   onImageSelect,
 }: MediaLibraryUploadPanelProps) => {
-  const { upload, isUploading } = useSupabaseStorage(
-    supabase,
-    bucket,
-    bucketFolder,
-    accept,
-  );
-
+  const { maxSize, resource } = useMediaLibraryContext();
+  const { upload, isUploading } = useSupabaseStorage();
   const [create] = useCreate();
   const notify = useNotify();
 

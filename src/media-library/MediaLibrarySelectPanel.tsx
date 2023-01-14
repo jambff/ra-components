@@ -1,35 +1,31 @@
 import { FC } from 'react';
-import { List, RaRecord, SortPayload } from 'react-admin';
+import { List, RaRecord } from 'react-admin';
 import { MediaLibraryModalList } from './MediaLibraryModalList';
+import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 type MediaLibrarySelectPanelProps = {
   source: string;
-  reference: string;
   onImageSelect: (newRecord: RaRecord) => void;
-  aspectRatio?: string;
-  sort?: SortPayload;
 };
 
 export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
   source,
-  reference,
   onImageSelect,
-  aspectRatio,
-  sort,
-}: MediaLibrarySelectPanelProps) => (
-  <List
-    resource={reference}
-    actions={false}
-    perPage={40}
-    storeKey={`media-library-${reference}-${source}`}
-    sort={sort}
-    sx={{
-      flex: 1,
-      '.MuiPaper-root': { borderRadius: 0, flex: 1 },
-    }}>
-    <MediaLibraryModalList
-      onImageSelect={onImageSelect}
-      aspectRatio={aspectRatio}
-    />
-  </List>
-);
+}: MediaLibrarySelectPanelProps) => {
+  const { resource, sort } = useMediaLibraryContext();
+
+  return (
+    <List
+      resource={resource}
+      actions={false}
+      perPage={40}
+      storeKey={`media-library-${resource}-${source}`}
+      sort={sort}
+      sx={{
+        flex: 1,
+        '.MuiPaper-root': { borderRadius: 0, flex: 1 },
+      }}>
+      <MediaLibraryModalList onImageSelect={onImageSelect} />
+    </List>
+  );
+};

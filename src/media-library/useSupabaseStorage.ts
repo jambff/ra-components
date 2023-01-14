@@ -1,16 +1,11 @@
 import { useCallback, useState } from 'react';
 import fetch from 'unfetch';
 import { isMatch } from 'matcher';
+import { useMediaLibraryContext } from './MediaLibraryProvider';
 
-import type { SupabaseClient } from '@supabase/supabase-js';
-
-export const useSupabaseStorage = (
-  supabase: SupabaseClient,
-  bucket: string,
-  bucketFolder?: string,
-  accept?: string | string[],
-) => {
+export const useSupabaseStorage = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const { supabase, bucket, bucketFolder, accept } = useMediaLibraryContext();
 
   const getFileLocation = useCallback(
     (fileName: string) => {
