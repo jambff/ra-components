@@ -45,6 +45,17 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   }
 
   return (
-    <FileInput source="" label=" " maxSize={maxSize} onChange={onChange} />
+    <FileInput
+      source=""
+      label=" "
+      maxSize={maxSize}
+      onChange={onChange}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    />
   );
 };
