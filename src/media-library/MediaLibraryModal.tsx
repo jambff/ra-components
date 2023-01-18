@@ -36,7 +36,7 @@ export const MediaLibraryModal: FC<MediaLibraryModalProps> = ({
       <Box
         sx={{
           bgcolor: 'background.paper',
-          border: '2px solid #000',
+          border: '1px solid #000',
           boxShadow: 24,
           position: 'fixed',
           zIndex: '1300',
