@@ -45,6 +45,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
             userSelect: 'none',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             border: `1px solid ${theme.palette.grey[300]}`,
             aspectRatio,
           }}>
