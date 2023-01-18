@@ -23,7 +23,9 @@ export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
       sort={sort}
       sx={{
         flex: 1,
+        height: '100%',
         '.MuiPaper-root': { borderRadius: 0, flex: 1 },
+        '.RaList-main': { height: '100%' },
       }}>
       <MediaLibraryModalList onImageSelect={onImageSelect} />
     </List>

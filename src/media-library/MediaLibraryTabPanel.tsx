@@ -1,5 +1,4 @@
 import { FC, ReactNode } from 'react';
-import { Typography, Box } from '@mui/material';
 import { getTabIds } from './utils';
 
 interface MediaLibraryTabPanelProps {
@@ -22,13 +21,9 @@ export const MediaLibraryTabPanel: FC<MediaLibraryTabPanelProps> = ({
       id={tabPanelId}
       aria-labelledby={tabId}
       hidden={value !== index}
-      style={{ overflow: 'auto' }}
+      style={{ overflow: 'auto', height: '100%' }}
       {...restProps}>
-      {value === index && (
-        <Box>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && children}
     </div>
   );
 };
