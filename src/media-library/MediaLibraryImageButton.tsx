@@ -9,6 +9,7 @@ type MediaLibraryImageButtonProps = {
   height?: number;
   crop?: number[];
   onClick: () => void;
+  isImageLoading?: boolean;
 };
 
 export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
@@ -18,6 +19,7 @@ export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
   width,
   height,
   crop,
+  isImageLoading,
 }: MediaLibraryImageButtonProps) => (
   <Button
     onClick={onClick}
@@ -38,7 +40,8 @@ export const MediaLibraryImageButton: FC<MediaLibraryImageButtonProps> = ({
         crop={crop}
       />
     ) : (
-      <>Click to select an image</>
+      // eslint-disable-next-line react/jsx-no-useless-fragment
+      <>{isImageLoading ? '' : 'Click to select an image'}</>
     )}
   </Button>
 );

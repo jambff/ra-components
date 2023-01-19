@@ -14,6 +14,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
   const theme = useTheme();
   const [hasError, setHasError] = useState<boolean>(false);
   const [scale, setScale] = useState(1);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [xPosition, setXPosition] = useState<number>(0);
   const [yPosition, setYPosition] = useState<number>(0);
   const { aspectRatio } = useMediaLibraryContext();
@@ -24,7 +25,14 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
   };
 
   useEffect(() => {
-    if (!ref.current || !crop || crop.length < 4 || !width || !height) {
+    if (
+      !isImageLoaded ||
+      !ref.current ||
+      !crop ||
+      crop.length < 4 ||
+      !width ||
+      !height
+    ) {
       return;
     }
 
@@ -48,7 +56,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
     setScale(imgScale);
     setXPosition(offsetX - scaledX);
     setYPosition(offsetY - scaledY);
-  }, [crop, width, height]);
+  }, [isImageLoaded, crop, width, height]);
 
   if (hasError) {
     return (
@@ -67,12 +75,16 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
         src={src}
         title={title}
         onError={onError}
+        onLoad={() => {
+          setIsImageLoaded(true);
+        }}
         style={{
           objectFit: 'cover',
           width: '100%',
           maxHeight: '100%',
           transform: `scale(${scale})`,
           objectPosition: `${xPosition}px ${yPosition}px`,
+          display: isImageLoaded ? 'block' : 'none',
           aspectRatio,
         }}
         alt=""

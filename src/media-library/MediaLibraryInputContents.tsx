@@ -28,7 +28,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
     setModalOpen(true);
   };
 
-  const { data } = useGetOne(resource, {
+  const { data, isLoading: isImageLoading } = useGetOne(resource, {
     id: field.value,
   });
 
@@ -49,6 +49,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
         width={width}
         height={height}
         crop={crop}
+        isImageLoading={isImageLoading}
       />
     </>
   );
