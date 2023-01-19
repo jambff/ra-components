@@ -19,6 +19,7 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
   maxSize,
   aspectRatio,
   sort,
+  croppable,
 }) => {
   const value = useMemo(
     (): MediaLibraryOptions => ({
@@ -30,6 +31,7 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
       maxSize,
       aspectRatio,
       sort,
+      croppable,
     }),
     [
       supabase,
@@ -40,6 +42,7 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
       maxSize,
       aspectRatio,
       sort,
+      croppable,
     ],
   );
 
