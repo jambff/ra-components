@@ -10,4 +10,5 @@ export type MediaLibraryOptions = {
   maxSize?: number;
   aspectRatio?: string;
   sort?: SortPayload;
+  croppable?: boolean;
 };

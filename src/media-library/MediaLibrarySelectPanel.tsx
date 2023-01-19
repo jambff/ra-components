@@ -25,7 +25,11 @@ export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
         flex: 1,
         height: '100%',
         '.MuiPaper-root': { borderRadius: 0, flex: 1 },
-        '.RaList-main': { height: '100%' },
+        '.RaList-main': {
+          height: '100%',
+          flex: 1,
+          overflow: 'auto',
+        },
       }}>
       <MediaLibraryModalList onImageSelect={onImageSelect} />
     </List>

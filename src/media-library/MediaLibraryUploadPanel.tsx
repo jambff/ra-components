@@ -17,6 +17,11 @@ type MediaLibraryUploadPanelProps = {
   onImageSelect: (newRecord: RaRecord) => void;
 };
 
+type ImageData = {
+  publicUrl: string;
+  file: File;
+};
+
 const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
   new Promise((resolve) => {
     const img = new Image();
@@ -43,19 +48,57 @@ const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   onImageSelect,
 }: MediaLibraryUploadPanelProps) => {
-  const [imageData, setImageData] = useState<{
-    publicUrl: string;
-    file: File;
-  }>();
+  const [imageData, setImageData] = useState<ImageData>();
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const { resource, aspectRatio } = useMediaLibraryContext();
+  const { resource, aspectRatio, croppable } = useMediaLibraryContext();
   const { upload, isUploading } = useSupabaseStorage();
   const [create] = useCreate();
   const notify = useNotify();
   const theme = useTheme();
+
+  const save = useCallback(
+    async (data?: ImageData) => {
+      const finalImageData = data ?? imageData;
+
+      if (!finalImageData) {
+        throw new Error('Failed to crop as image data is not available yet');
+      }
+
+      const { publicUrl, file } = finalImageData;
+      const img = await createImageFromFile(file);
+
+      create(
+        resource,
+        {
+          data: {
+            src: publicUrl,
+            title: file.name.replace(/\.[^.]*$/, ''),
+            width: img.width,
+            height: img.height,
+            crop: croppedAreaPixels
+              ? [
+                  croppedAreaPixels.x,
+                  croppedAreaPixels.y,
+                  croppedAreaPixels.width,
+                  croppedAreaPixels.height,
+                ]
+              : undefined,
+          },
+        },
+        {
+          onSuccess: onImageSelect,
+        },
+      );
+    },
+    [create, resource, imageData, onImageSelect, croppedAreaPixels],
+  );
+
+  const onSaveClick = useCallback(() => {
+    save();
+  }, [save]);
 
   const onChange = useCallback(
     async (file?: File) => {
@@ -73,46 +116,20 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         return;
       }
 
+      if (!croppable) {
+        save(data);
+
+        return;
+      }
+
       setImageData(data);
     },
-    [notify, upload],
+    [notify, upload, croppable, save],
   );
 
   const onCropComplete = useCallback((_croppedArea: Area, pixels: Area) => {
     setCroppedAreaPixels(pixels);
   }, []);
-
-  const onSaveClick = useCallback(async () => {
-    if (!imageData) {
-      throw new Error('Failed to crop as image has been uploaded yet');
-    }
-
-    const { publicUrl, file } = imageData;
-    const img = await createImageFromFile(file);
-
-    create(
-      resource,
-      {
-        data: {
-          src: publicUrl,
-          title: file.name.replace(/\.[^.]*$/, ''),
-          width: img.width,
-          height: img.height,
-          crop: croppedAreaPixels
-            ? [
-                croppedAreaPixels.x,
-                croppedAreaPixels.y,
-                croppedAreaPixels.width,
-                croppedAreaPixels.height,
-              ]
-            : undefined,
-        },
-      },
-      {
-        onSuccess: onImageSelect,
-      },
-    );
-  }, [create, resource, imageData, onImageSelect, croppedAreaPixels]);
 
   const onZoomSliderChange = (_event: Event, value: number) => {
     setZoom(value);
@@ -150,7 +167,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     ?.split('/')
     .map((part) => Number(part.trim()));
 
-  if (imageData) {
+  if (imageData && croppable) {
     return (
       <Box
         sx={{
