@@ -1,6 +1,12 @@
 import { FC, useCallback, useState } from 'react';
 import { Button, RaRecord, useCreate, useNotify } from 'react-admin';
-import { Box, LinearProgress, Slider, Typography } from '@mui/material';
+import {
+  Box,
+  LinearProgress,
+  Slider,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import Save from '@mui/icons-material/Save';
 import Cropper, { Area } from 'react-easy-crop';
 import { MediaLibraryDropZone } from './MediaLibraryDropZone';
@@ -49,6 +55,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   const { upload, isUploading } = useSupabaseStorage();
   const [create] = useCreate();
   const notify = useNotify();
+  const theme = useTheme();
 
   const onChange = useCallback(
     async (file?: File) => {
@@ -109,6 +116,10 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
 
   const onZoomSliderChange = (_event: Event, value: number) => {
     setZoom(value);
+  };
+
+  const onResetClick = () => {
+    setImageData(undefined);
   };
 
   if (isUploading) {
@@ -182,13 +193,22 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
             step={0.1}
             sx={{ width: '30%', left: '50%', transform: 'translateX(-50%)' }}
           />
-          <Button
-            onClick={onSaveClick}
-            variant="contained"
-            size="large"
-            startIcon={<Save />}
-            label="Save"
-          />
+          <Box>
+            <Button
+              onClick={onResetClick}
+              variant="outlined"
+              size="large"
+              label="Clear"
+              sx={{ marginRight: theme.spacing(2) }}
+            />
+            <Button
+              onClick={onSaveClick}
+              variant="contained"
+              size="large"
+              startIcon={<Save />}
+              label="Save"
+            />
+          </Box>
         </Box>
       </Box>
     );
