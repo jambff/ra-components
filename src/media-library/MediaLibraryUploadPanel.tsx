@@ -53,7 +53,13 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
-  const { resource, aspectRatio, croppable } = useMediaLibraryContext();
+  const {
+    resource,
+    aspectRatio,
+    croppable,
+    parseImageUploadUrl = (url: string) => url,
+  } = useMediaLibraryContext();
+
   const { upload, isUploading } = useSupabaseStorage();
   const [create] = useCreate();
   const notify = useNotify();
@@ -74,7 +80,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         resource,
         {
           data: {
-            src: publicUrl,
+            src: parseImageUploadUrl(publicUrl),
             title: file.name.replace(/\.[^.]*$/, ''),
             width: img.width,
             height: img.height,
@@ -93,7 +99,14 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         },
       );
     },
-    [create, resource, imageData, onImageSelect, croppedAreaPixels],
+    [
+      create,
+      resource,
+      imageData,
+      onImageSelect,
+      croppedAreaPixels,
+      parseImageUploadUrl,
+    ],
   );
 
   const onSaveClick = useCallback(() => {
