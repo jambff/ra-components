@@ -20,6 +20,7 @@ export const MediaLibraryRecordImageField: FC<
         width={width}
         height={height}
         crop={crop}
+        containerWidth={containerWidth}
       />
     </div>
   );

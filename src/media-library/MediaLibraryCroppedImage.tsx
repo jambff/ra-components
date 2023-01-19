@@ -4,13 +4,18 @@ import BrokenImage from '@mui/icons-material/BrokenImage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 import { MediaLibraryImage } from './image';
 
-export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
+type MediaLibraryCroppedImageProps = MediaLibraryImage & {
+  containerWidth?: number;
+};
+
+export const MediaLibraryCroppedImage: FC<MediaLibraryCroppedImageProps> = ({
   src,
   title,
   width,
   height,
   crop,
-}: MediaLibraryImage) => {
+  containerWidth,
+}: MediaLibraryCroppedImageProps) => {
   const theme = useTheme();
   const [hasError, setHasError] = useState<boolean>(false);
   const [scale, setScale] = useState(1);
@@ -58,7 +63,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
     setScale(imgScale);
     setXPosition(offsetX - scaledX);
     setYPosition(offsetY - scaledY);
-  }, [isImageLoaded, crop, width, height, croppable]);
+  }, [isImageLoaded, crop, width, height, croppable, formatImageUrl]);
 
   if (hasError) {
     return (
@@ -74,7 +79,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
         aspectRatio,
       }}>
       <img
-        src={formatImageUrl ? formatImageUrl(src) : src}
+        src={formatImageUrl ? formatImageUrl(src, containerWidth) : src}
         title={title}
         onError={onError}
         onLoad={() => {
