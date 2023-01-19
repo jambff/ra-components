@@ -57,7 +57,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     resource,
     aspectRatio,
     croppable,
-    parseImageUploadUrl = (url: string) => url,
+    parseImageUrl = (url: string) => url,
   } = useMediaLibraryContext();
 
   const { upload, isUploading } = useSupabaseStorage();
@@ -80,7 +80,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         resource,
         {
           data: {
-            src: parseImageUploadUrl(publicUrl),
+            src: parseImageUrl(publicUrl),
             title: file.name.replace(/\.[^.]*$/, ''),
             width: img.width,
             height: img.height,
@@ -105,7 +105,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
       imageData,
       onImageSelect,
       croppedAreaPixels,
-      parseImageUploadUrl,
+      parseImageUrl,
     ],
   );
 

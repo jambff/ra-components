@@ -11,5 +11,6 @@ export type MediaLibraryOptions = {
   aspectRatio?: string;
   sort?: SortPayload;
   croppable?: boolean;
-  parseImageUploadUrl?: (url: string) => string;
+  parseImageUrl?: (url: string) => string;
+  formatImageUrl?: (url: string) => string;
 };

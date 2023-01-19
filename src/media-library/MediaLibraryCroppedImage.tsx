@@ -17,7 +17,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
   const [isImageLoaded, setIsImageLoaded] = useState(false);
   const [xPosition, setXPosition] = useState<number>(0);
   const [yPosition, setYPosition] = useState<number>(0);
-  const { aspectRatio, croppable } = useMediaLibraryContext();
+  const { aspectRatio, croppable, formatImageUrl } = useMediaLibraryContext();
   const ref = useRef<HTMLImageElement>(null);
 
   const onError = () => {
@@ -26,6 +26,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
 
   useEffect(() => {
     if (
+      !!formatImageUrl ||
       !croppable ||
       !isImageLoaded ||
       !ref.current ||
@@ -73,7 +74,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
         aspectRatio,
       }}>
       <img
-        src={src}
+        src={formatImageUrl ? formatImageUrl(src) : src}
         title={title}
         onError={onError}
         onLoad={() => {
