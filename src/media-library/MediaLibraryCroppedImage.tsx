@@ -2,24 +2,15 @@ import { useTheme } from '@mui/material';
 import { FC, useEffect, useRef, useState } from 'react';
 import BrokenImage from '@mui/icons-material/BrokenImage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
+import { MediaLibraryImage } from './image';
 
-type MediaLibraryImageButtonContentProps = {
-  src: string;
-  title: string;
-  width?: number;
-  height?: number;
-  crop?: number[];
-};
-
-export const MediaLibraryCroppedImage: FC<
-  MediaLibraryImageButtonContentProps
-> = ({
+export const MediaLibraryCroppedImage: FC<MediaLibraryImage> = ({
   src,
   title,
   width,
   height,
   crop,
-}: MediaLibraryImageButtonContentProps) => {
+}: MediaLibraryImage) => {
   const theme = useTheme();
   const [hasError, setHasError] = useState<boolean>(false);
   const [scale, setScale] = useState(1);
