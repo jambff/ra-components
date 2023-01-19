@@ -95,7 +95,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
       {
         data: {
           src: publicUrl,
-          title: file.name,
+          title: file.name.replace(/\.[^.]*$/, ''),
           width: img.width,
           height: img.height,
           crop: croppedAreaPixels
