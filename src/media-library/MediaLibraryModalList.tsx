@@ -13,7 +13,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
 }: MediaLibraryModalListProps) => {
   const { data } = useListContext();
   const theme = useTheme();
-  const { aspectRatio = '3 / 2' } = useMediaLibraryContext();
+  const { aspectRatio } = useMediaLibraryContext();
 
   if (!data) {
     return null;
@@ -36,7 +36,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
       }}>
       {data?.map((record) => (
         <Box
-          key={record.src}
+          key={record.id}
           component="li"
           sx={{
             width: '100%',
@@ -58,6 +58,9 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
             <MediaLibraryImageButton
               src={record.src}
               title={record.title}
+              width={record.width}
+              height={record.height}
+              crop={record.crop}
               onClick={() => {
                 onImageSelect(record);
               }}

@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react';
 import fetch from 'unfetch';
 import { isMatch } from 'matcher';
+import { useNotify } from 'react-admin';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 export const useSupabaseStorage = () => {
   const [isUploading, setIsUploading] = useState(false);
   const { supabase, bucket, bucketFolder, accept } = useMediaLibraryContext();
+  const notify = useNotify();
 
   const getFileLocation = useCallback(
     (fileName: string) => {
@@ -18,7 +20,7 @@ export const useSupabaseStorage = () => {
     [bucketFolder],
   );
 
-  const getPublicImageUrl = useCallback(
+  const getPublicUrl = useCallback(
     (fileName: string) => {
       const { data } = supabase.storage
         .from(bucket)
@@ -29,9 +31,9 @@ export const useSupabaseStorage = () => {
     [supabase, bucket, getFileLocation],
   );
 
-  const uploadImage = useCallback(
-    async (publicImageUrl: string, file: File) => {
-      const res = await fetch(publicImageUrl);
+  const uploadFile = useCallback(
+    async (publicUrl: string, file: File) => {
+      const res = await fetch(publicUrl);
 
       // No need to upload again if this image was already uploaded
       if (res.status === 200) {
@@ -57,23 +59,31 @@ export const useSupabaseStorage = () => {
     [supabase, bucket, getFileLocation, accept],
   );
 
-  const upload = async (file: File) => {
-    const publicImageUrl = getPublicImageUrl(file.name);
+  const upload = useCallback(
+    async (file?: File) => {
+      if (!file) {
+        throw new Error('The file could not be uploaded');
+      }
 
-    setIsUploading(true);
+      const publicUrl = getPublicUrl(file.name);
 
-    try {
-      await uploadImage(publicImageUrl, file);
-    } catch (err) {
+      setIsUploading(true);
+
+      try {
+        await uploadFile(publicUrl, file);
+      } catch (err) {
+        setIsUploading(false);
+        notify(err.message, { type: 'error' });
+
+        throw err;
+      }
+
       setIsUploading(false);
 
-      throw err;
-    }
-
-    setIsUploading(false);
-
-    return { src: publicImageUrl, title: file.name };
-  };
+      return { publicUrl, file };
+    },
+    [notify, uploadFile, getPublicUrl],
+  );
 
   return {
     upload,

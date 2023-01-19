@@ -32,7 +32,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
     id: field.value,
   });
 
-  const { src, title } = data ?? {};
+  const { src, title, width, height, crop } = data ?? {};
 
   return (
     <>
@@ -42,7 +42,14 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
         source={source}
         onImageSelect={onImageSelect}
       />
-      <MediaLibraryImageButton src={src} title={title} onClick={onImageClick} />
+      <MediaLibraryImageButton
+        src={src}
+        title={title}
+        onClick={onImageClick}
+        width={width}
+        height={height}
+        crop={crop}
+      />
     </>
   );
 };

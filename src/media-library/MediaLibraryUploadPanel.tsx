@@ -1,6 +1,9 @@
-import { FC } from 'react';
-import { FileInput, RaRecord, useCreate, useNotify } from 'react-admin';
-import { LinearProgress } from '@mui/material';
+import { FC, useCallback, useState } from 'react';
+import { Button, RaRecord, useCreate, useNotify } from 'react-admin';
+import { Box, LinearProgress, Slider, Typography } from '@mui/material';
+import Save from '@mui/icons-material/Save';
+import Cropper, { Area } from 'react-easy-crop';
+import { MediaLibraryDropZone } from './MediaLibraryDropZone';
 import { useSupabaseStorage } from './useSupabaseStorage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 
@@ -8,54 +11,188 @@ type MediaLibraryUploadPanelProps = {
   onImageSelect: (newRecord: RaRecord) => void;
 };
 
+const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
+  new Promise((resolve) => {
+    const img = new Image();
+    const fileReader = new FileReader();
+
+    img.onload = () => {
+      resolve(img);
+    };
+
+    fileReader.onload = ({ target }) => {
+      if (!target?.result) {
+        throw new Error('Failed to read file');
+      }
+
+      const { result } = target;
+
+      img.src =
+        typeof result === 'string' ? result : Buffer.from(result).toString();
+    };
+
+    fileReader.readAsDataURL(file);
+  });
+
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   onImageSelect,
 }: MediaLibraryUploadPanelProps) => {
-  const { maxSize, resource } = useMediaLibraryContext();
+  const [imageData, setImageData] = useState<{
+    publicUrl: string;
+    file: File;
+  }>();
+
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area>();
+  const { resource, aspectRatio } = useMediaLibraryContext();
   const { upload, isUploading } = useSupabaseStorage();
   const [create] = useCreate();
   const notify = useNotify();
 
-  const onChange = async (file?: File) => {
-    if (!file) {
-      return;
+  const onChange = useCallback(
+    async (file?: File) => {
+      if (!file) {
+        throw new Error('The file could not be uploaded');
+      }
+
+      let data;
+
+      try {
+        data = await upload(file);
+      } catch (err) {
+        notify(err.message, { type: 'error' });
+
+        return;
+      }
+
+      setImageData(data);
+    },
+    [notify, upload],
+  );
+
+  const onCropComplete = useCallback((_croppedArea: Area, pixels: Area) => {
+    setCroppedAreaPixels(pixels);
+  }, []);
+
+  const onSaveClick = useCallback(async () => {
+    if (!imageData) {
+      throw new Error('Failed to crop as image has been uploaded yet');
     }
 
-    let data;
-
-    try {
-      data = await upload(file);
-    } catch (err) {
-      notify(err.message, { type: 'error' });
-
-      return;
-    }
+    const { publicUrl, file } = imageData;
+    const img = await createImageFromFile(file);
 
     create(
       resource,
-      { data },
+      {
+        data: {
+          src: publicUrl,
+          title: file.name,
+          width: img.width,
+          height: img.height,
+          crop: croppedAreaPixels
+            ? [
+                croppedAreaPixels.x,
+                croppedAreaPixels.y,
+                croppedAreaPixels.width,
+                croppedAreaPixels.height,
+              ]
+            : undefined,
+        },
+      },
       {
         onSuccess: onImageSelect,
       },
     );
+  }, [create, resource, imageData, onImageSelect, croppedAreaPixels]);
+
+  const onZoomSliderChange = (_event: Event, value: number) => {
+    setZoom(value);
   };
 
   if (isUploading) {
-    return <LinearProgress />;
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+        <LinearProgress />
+        <Box
+          sx={{
+            flex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            userSelect: 'none',
+          }}>
+          <Typography>Uploading...</Typography>
+        </Box>
+      </Box>
+    );
   }
 
-  return (
-    <FileInput
-      source=""
-      label=" "
-      maxSize={maxSize}
-      onChange={onChange}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    />
-  );
+  const parsedAspectRatio = aspectRatio
+    ?.split('/')
+    .map((part) => Number(part.trim()));
+
+  if (imageData) {
+    return (
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+        <Box sx={{ flex: 1, position: 'relative' }}>
+          <Cropper
+            image={imageData.publicUrl}
+            crop={crop}
+            zoom={zoom}
+            aspect={
+              parsedAspectRatio
+                ? parsedAspectRatio[0] / parsedAspectRatio[1]
+                : undefined
+            }
+            onCropChange={setCrop}
+            onZoomChange={setZoom}
+            onCropComplete={onCropComplete}
+          />
+        </Box>
+        <Box
+          sx={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            padding: '20px',
+          }}>
+          <Slider
+            aria-label="Volume"
+            value={zoom}
+            onChange={onZoomSliderChange}
+            min={1}
+            max={5}
+            step={0.1}
+            sx={{ width: '30%', left: '50%', transform: 'translateX(-50%)' }}
+          />
+          <Button
+            onClick={onSaveClick}
+            variant="contained"
+            size="large"
+            startIcon={<Save />}
+            label="Save"
+          />
+        </Box>
+      </Box>
+    );
+  }
+
+  return <MediaLibraryDropZone onChange={onChange} />;
 };

@@ -9,6 +9,8 @@ type MediaLibraryProviderProps = MediaLibraryOptions & {
   children: ReactNode;
 };
 
+const DEFAULT_ASPECT_RATIO = '3 / 2';
+
 export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
   children,
   supabase,
@@ -17,7 +19,7 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
   bucketFolder,
   accept,
   maxSize,
-  aspectRatio,
+  aspectRatio = DEFAULT_ASPECT_RATIO,
   sort,
 }) => {
   const value = useMemo(
