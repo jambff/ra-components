@@ -13,6 +13,7 @@ export type MediaLibraryOptions = {
   croppable?: boolean;
   parseImageUrl?: (url: string) => string;
   formatImageUrl?: (url: string, containerWidth?: number) => string;
+  convertFileName?: boolean;
   resizeOptions?: {
     maxSizeMB?: number;
     maxWidthOrHeight?: number;

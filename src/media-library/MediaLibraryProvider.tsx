@@ -22,6 +22,8 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
   croppable,
   parseImageUrl,
   formatImageUrl,
+  resizeOptions,
+  convertFileName,
 }) => {
   const value = useMemo(
     (): MediaLibraryOptions => ({
@@ -36,6 +38,8 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
       croppable,
       parseImageUrl,
       formatImageUrl,
+      resizeOptions,
+      convertFileName,
     }),
     [
       supabase,
@@ -49,6 +53,8 @@ export const MediaLibraryProvider: FC<MediaLibraryProviderProps> = ({
       croppable,
       parseImageUrl,
       formatImageUrl,
+      resizeOptions,
+      convertFileName,
     ],
   );
 

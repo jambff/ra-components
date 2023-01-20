@@ -7,6 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { paramCase } from 'param-case';
 import Save from '@mui/icons-material/Save';
 import Cropper, { Area } from 'react-easy-crop';
 import imageCompression from 'browser-image-compression';
@@ -46,6 +47,13 @@ const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
     fileReader.readAsDataURL(file);
   });
 
+const getConvertedFileName = (file: File) => {
+  const fileParts = file.name.split('.');
+  const ext = fileParts.pop();
+
+  return `${paramCase(fileParts.join('.'))}.${ext}`;
+};
+
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   onImageSelect,
 }: MediaLibraryUploadPanelProps) => {
@@ -60,6 +68,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     croppable,
     parseImageUrl = (url: string) => url,
     resizeOptions,
+    convertFileName,
   } = useMediaLibraryContext();
 
   const { upload, isUploading } = useSupabaseStorage();
@@ -130,8 +139,10 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
 
       let data;
 
+      const fileName = convertFileName ? getConvertedFileName(file) : file.name;
+
       try {
-        data = await upload(compressedFile);
+        data = await upload(compressedFile, fileName);
       } catch (err) {
         notify(err.message, { type: 'error' });
 

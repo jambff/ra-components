@@ -32,21 +32,10 @@ export const useSupabaseStorage = () => {
   );
 
   const uploadFile = useCallback(
-    async (publicUrl: string, file: File) => {
-      const res = await fetch(publicUrl);
-
-      // No need to upload again if this image was already uploaded
-      if (res.status === 200) {
-        return;
-      }
-
-      if (accept && !isMatch(file.type, accept)) {
-        throw new Error(`Not an accepted file type: ${file.type}`);
-      }
-
+    async (file: File, fileName: string) => {
       const { error } = await supabase.storage
         .from(bucket)
-        .upload(getFileLocation(file.name), file, {
+        .upload(getFileLocation(fileName), file, {
           cacheControl: '3600',
           upsert: false,
           contentType: file.type,
@@ -56,21 +45,33 @@ export const useSupabaseStorage = () => {
         throw new Error(`Failed to upload file: ${error.message}`);
       }
     },
-    [supabase, bucket, getFileLocation, accept],
+    [supabase, bucket, getFileLocation],
   );
 
   const upload = useCallback(
-    async (file?: File) => {
+    async (file: File, fileName: string) => {
       if (!file) {
         throw new Error('The file could not be uploaded');
       }
 
-      const publicUrl = getPublicUrl(file.name);
+      if (accept && !isMatch(file.type, accept)) {
+        throw new Error(`Not an accepted file type: ${file.type}`);
+      }
 
       setIsUploading(true);
 
+      const publicUrl = getPublicUrl(fileName);
+      const res = await fetch(publicUrl);
+
+      // No need to upload again if this image was already uploaded
+      if (res.status === 200) {
+        setIsUploading(false);
+
+        return { publicUrl, file };
+      }
+
       try {
-        await uploadFile(publicUrl, file);
+        await uploadFile(file, fileName);
       } catch (err) {
         setIsUploading(false);
         notify(err.message, { type: 'error' });
@@ -82,7 +83,7 @@ export const useSupabaseStorage = () => {
 
       return { publicUrl, file };
     },
-    [notify, uploadFile, getPublicUrl],
+    [notify, uploadFile, getPublicUrl, accept],
   );
 
   return {
