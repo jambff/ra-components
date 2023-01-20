@@ -12,7 +12,11 @@ export type MediaLibraryOptions = {
   sort?: SortPayload;
   croppable?: boolean;
   parseImageUrl?: (url: string) => string;
-  formatImageUrl?: (url: string, containerWidth?: number) => string;
+  formatImageUrl?: (
+    url: string,
+    containerWidth?: number,
+    crop?: number[],
+  ) => string;
   convertFileName?: boolean;
   resizeOptions?: {
     maxSizeMB?: number;

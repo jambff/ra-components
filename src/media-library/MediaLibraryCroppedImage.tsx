@@ -79,7 +79,7 @@ export const MediaLibraryCroppedImage: FC<MediaLibraryCroppedImageProps> = ({
         aspectRatio,
       }}>
       <img
-        src={formatImageUrl ? formatImageUrl(src, containerWidth) : src}
+        src={formatImageUrl ? formatImageUrl(src, containerWidth, crop) : src}
         title={title}
         onError={onError}
         onLoad={() => {
