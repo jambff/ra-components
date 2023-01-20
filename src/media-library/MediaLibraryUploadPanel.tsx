@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import Save from '@mui/icons-material/Save';
 import Cropper, { Area } from 'react-easy-crop';
+import imageCompression from 'browser-image-compression';
 import { MediaLibraryDropZone } from './MediaLibraryDropZone';
 import { useSupabaseStorage } from './useSupabaseStorage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
@@ -58,6 +59,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     aspectRatio,
     croppable,
     parseImageUrl = (url: string) => url,
+    resizeOptions,
   } = useMediaLibraryContext();
 
   const { upload, isUploading } = useSupabaseStorage();
@@ -119,10 +121,17 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         throw new Error('The file could not be uploaded');
       }
 
+      const compressedFile = resizeOptions
+        ? await imageCompression(file, {
+            ...resizeOptions,
+            useWebWorker: true,
+          })
+        : file;
+
       let data;
 
       try {
-        data = await upload(file);
+        data = await upload(compressedFile);
       } catch (err) {
         notify(err.message, { type: 'error' });
 
@@ -137,7 +146,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
 
       setImageData(data);
     },
-    [notify, upload, croppable, save],
+    [notify, upload, croppable, save, resizeOptions],
   );
 
   const onCropComplete = useCallback((_croppedArea: Area, pixels: Area) => {
