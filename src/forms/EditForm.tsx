@@ -13,7 +13,7 @@ import {
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
-  form: SimpleFormProps;
+  form?: SimpleFormProps;
 };
 
 export const EditForm: FC<EditFormProps> = ({
