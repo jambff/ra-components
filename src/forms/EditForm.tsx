@@ -12,10 +12,12 @@ import {
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
+  warnWhenUnsavedChanges?: boolean;
 };
 
 export const EditForm: FC<EditFormProps> = ({
   children,
+  warnWhenUnsavedChanges,
   ...restProps
 }: EditFormProps) => {
   const notify = useNotify();
@@ -35,7 +37,9 @@ export const EditForm: FC<EditFormProps> = ({
       mutationOptions={{ onSuccess }}
       mutationMode="pessimistic"
       {...restProps}>
-      <SimpleForm>{children}</SimpleForm>
+      <SimpleForm warnWhenUnsavedChanges={warnWhenUnsavedChanges}>
+        {children}
+      </SimpleForm>
     </Edit>
   );
 };

@@ -3,19 +3,21 @@ import { singular } from 'pluralize';
 import { capitalCase } from 'change-case';
 import {
   Create,
-  EditProps,
+  CreateProps,
   RaRecord,
   SimpleForm,
   useNotify,
   useRedirect,
 } from 'react-admin';
 
-type CreateFormProps = Omit<EditProps, 'resource'> & {
+type CreateFormProps = Omit<CreateProps, 'resource'> & {
   children: ReactNode;
+  warnWhenUnsavedChanges?: boolean;
 };
 
 export const CreateForm: FC<CreateFormProps> = ({
   children,
+  warnWhenUnsavedChanges,
   ...restProps
 }: CreateFormProps) => {
   const notify = useNotify();
@@ -32,7 +34,9 @@ export const CreateForm: FC<CreateFormProps> = ({
 
   return (
     <Create mutationOptions={{ onSuccess }} {...restProps}>
-      <SimpleForm>{children}</SimpleForm>
+      <SimpleForm warnWhenUnsavedChanges={warnWhenUnsavedChanges}>
+        {children}
+      </SimpleForm>
     </Create>
   );
 };
