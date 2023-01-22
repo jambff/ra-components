@@ -35,7 +35,9 @@ export const CreateForm: FC<CreateFormProps> = ({
 
   return (
     <Create mutationOptions={{ onSuccess }} {...restProps}>
-      <SimpleForm {...form}>{children}</SimpleForm>
+      <SimpleForm warnWhenUnsavedChanges {...form}>
+        {children}
+      </SimpleForm>
     </Create>
   );
 };

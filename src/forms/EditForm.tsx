@@ -38,7 +38,9 @@ export const EditForm: FC<EditFormProps> = ({
       mutationOptions={{ onSuccess }}
       mutationMode="pessimistic"
       {...restProps}>
-      <SimpleForm {...form}>{children}</SimpleForm>
+      <SimpleForm warnWhenUnsavedChanges {...form}>
+        {children}
+      </SimpleForm>
     </Edit>
   );
 };
