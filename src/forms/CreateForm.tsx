@@ -6,18 +6,19 @@ import {
   CreateProps,
   RaRecord,
   SimpleForm,
+  SimpleFormProps,
   useNotify,
   useRedirect,
 } from 'react-admin';
 
 type CreateFormProps = Omit<CreateProps, 'resource'> & {
   children: ReactNode;
-  warnWhenUnsavedChanges?: boolean;
+  form?: SimpleFormProps;
 };
 
 export const CreateForm: FC<CreateFormProps> = ({
   children,
-  warnWhenUnsavedChanges,
+  form,
   ...restProps
 }: CreateFormProps) => {
   const notify = useNotify();
@@ -34,9 +35,7 @@ export const CreateForm: FC<CreateFormProps> = ({
 
   return (
     <Create mutationOptions={{ onSuccess }} {...restProps}>
-      <SimpleForm warnWhenUnsavedChanges={warnWhenUnsavedChanges}>
-        {children}
-      </SimpleForm>
+      <SimpleForm {...form}>{children}</SimpleForm>
     </Create>
   );
 };

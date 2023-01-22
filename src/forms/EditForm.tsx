@@ -6,18 +6,19 @@ import {
   EditProps,
   RaRecord,
   SimpleForm,
+  SimpleFormProps,
   useNotify,
   useRedirect,
 } from 'react-admin';
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
-  warnWhenUnsavedChanges?: boolean;
+  form: SimpleFormProps;
 };
 
 export const EditForm: FC<EditFormProps> = ({
   children,
-  warnWhenUnsavedChanges,
+  form,
   ...restProps
 }: EditFormProps) => {
   const notify = useNotify();
@@ -37,9 +38,7 @@ export const EditForm: FC<EditFormProps> = ({
       mutationOptions={{ onSuccess }}
       mutationMode="pessimistic"
       {...restProps}>
-      <SimpleForm warnWhenUnsavedChanges={warnWhenUnsavedChanges}>
-        {children}
-      </SimpleForm>
+      <SimpleForm {...form}>{children}</SimpleForm>
     </Edit>
   );
 };
