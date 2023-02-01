@@ -11,6 +11,7 @@ import { paramCase } from 'param-case';
 import Save from '@mui/icons-material/Save';
 import Cropper, { Area } from 'react-easy-crop';
 import imageCompression from 'browser-image-compression';
+import { isMatch } from 'matcher';
 import { MediaLibraryDropZone } from './MediaLibraryDropZone';
 import { useSupabaseStorage } from './useSupabaseStorage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
@@ -124,18 +125,27 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
     save();
   }, [save]);
 
+  const compressFile = useCallback(
+    (file: File) => {
+      if (!isMatch(file.type, 'image/*')) {
+        return file;
+      }
+
+      return imageCompression(file, {
+        ...resizeOptions,
+        useWebWorker: true,
+      });
+    },
+    [resizeOptions],
+  );
+
   const onChange = useCallback(
     async (file?: File) => {
       if (!file) {
         throw new Error('The file could not be uploaded');
       }
 
-      const compressedFile = resizeOptions
-        ? await imageCompression(file, {
-            ...resizeOptions,
-            useWebWorker: true,
-          })
-        : file;
+      const compressedFile = resizeOptions ? await compressFile(file) : file;
 
       let data;
 
@@ -157,7 +167,15 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
 
       setImageData(data);
     },
-    [notify, upload, croppable, save, resizeOptions],
+    [
+      notify,
+      upload,
+      croppable,
+      save,
+      resizeOptions,
+      compressFile,
+      convertFileName,
+    ],
   );
 
   const onCropComplete = useCallback((_croppedArea: Area, pixels: Area) => {
