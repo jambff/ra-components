@@ -11,42 +11,75 @@ import { paramCase } from 'param-case';
 import Save from '@mui/icons-material/Save';
 import Cropper, { Area } from 'react-easy-crop';
 import imageCompression from 'browser-image-compression';
-import { isMatch } from 'matcher';
 import { MediaLibraryDropZone } from './MediaLibraryDropZone';
 import { useSupabaseStorage } from './useSupabaseStorage';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
+import { isImage } from './utils';
 
 type MediaLibraryUploadPanelProps = {
   onImageSelect: (newRecord: RaRecord) => void;
 };
 
-type ImageData = {
+type FileData = {
   publicUrl: string;
   file: File;
 };
 
-const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
+type FileDimensions = {
+  width: number;
+  height: number;
+};
+
+const readFile = (file: File, element: HTMLImageElement | HTMLVideoElement) => {
+  const fileReader = new FileReader();
+
+  fileReader.onload = ({ target }) => {
+    if (!target?.result) {
+      throw new Error('Failed to read file');
+    }
+
+    const { result } = target;
+
+    element.src =
+      typeof result === 'string' ? result : Buffer.from(result).toString();
+  };
+
+  fileReader.readAsDataURL(file);
+};
+
+const createImageFromFile = async (file: File): Promise<FileDimensions> =>
   new Promise((resolve) => {
     const img = new Image();
-    const fileReader = new FileReader();
 
     img.onload = () => {
       resolve(img);
     };
 
-    fileReader.onload = ({ target }) => {
-      if (!target?.result) {
-        throw new Error('Failed to read file');
-      }
-
-      const { result } = target;
-
-      img.src =
-        typeof result === 'string' ? result : Buffer.from(result).toString();
-    };
-
-    fileReader.readAsDataURL(file);
+    readFile(file, img);
   });
+
+const createVideoFromFile = async (file: File): Promise<FileDimensions> =>
+  new Promise((resolve) => {
+    const video = document.createElement('video');
+
+    video.addEventListener(
+      'loadedmetadata',
+      () => {
+        resolve({ height: video.videoHeight, width: video.videoWidth });
+      },
+      false,
+    );
+
+    readFile(file, video);
+  });
+
+const getFileDimensions = (file: File) => {
+  if (isImage(file)) {
+    return createImageFromFile(file);
+  }
+
+  return createVideoFromFile(file);
+};
 
 const getConvertedFileName = (file: File) => {
   const fileParts = file.name.split('.');
@@ -58,7 +91,7 @@ const getConvertedFileName = (file: File) => {
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   onImageSelect,
 }: MediaLibraryUploadPanelProps) => {
-  const [imageData, setImageData] = useState<ImageData>();
+  const [imageData, setImageData] = useState<FileData>();
 
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -78,7 +111,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   const theme = useTheme();
 
   const save = useCallback(
-    async (data?: ImageData) => {
+    async (data?: FileData) => {
       const finalImageData = data ?? imageData;
 
       if (!finalImageData) {
@@ -86,7 +119,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
       }
 
       const { publicUrl, file } = finalImageData;
-      const img = await createImageFromFile(file);
+      const { width, height } = await getFileDimensions(file);
 
       create(
         resource,
@@ -94,8 +127,8 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
           data: {
             src: parseImageUrl(publicUrl),
             title: file.name.replace(/\.[^.]*$/, ''),
-            width: img.width,
-            height: img.height,
+            width,
+            height,
             crop: croppedAreaPixels
               ? [
                   croppedAreaPixels.x,
@@ -127,7 +160,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
 
   const compressFile = useCallback(
     (file: File) => {
-      if (!isMatch(file.type, 'image/*')) {
+      if (!isImage(file)) {
         return file;
       }
 
@@ -229,38 +262,60 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
           flexDirection: 'column',
         }}>
         <Box sx={{ flex: 1, position: 'relative' }}>
-          <Cropper
-            image={imageData.publicUrl}
-            crop={crop}
-            zoom={zoom}
-            aspect={
-              parsedAspectRatio
-                ? parsedAspectRatio[0] / parsedAspectRatio[1]
-                : undefined
-            }
-            onCropChange={setCrop}
-            onZoomChange={setZoom}
-            onCropComplete={onCropComplete}
-          />
+          {isImage(imageData.file) ? (
+            <Cropper
+              image={imageData.publicUrl}
+              crop={crop}
+              zoom={zoom}
+              aspect={
+                parsedAspectRatio
+                  ? parsedAspectRatio[0] / parsedAspectRatio[1]
+                  : undefined
+              }
+              onCropChange={setCrop}
+              onZoomChange={setZoom}
+              onCropComplete={onCropComplete}
+            />
+          ) : (
+            // eslint-disable-next-line jsx-a11y/media-has-caption
+            <video
+              controls
+              controlsList="nodownload"
+              autoPlay
+              style={{
+                width: '100%',
+                maxWidth: '1080px',
+                display: 'block',
+                marginLeft: 'auto',
+                marginRight: 'auto',
+                marginTop: theme.spacing(1),
+              }}>
+              <source src={imageData.publicUrl} type="video/mp4" />
+            </video>
+          )}
         </Box>
         <Box
           sx={{
             position: 'relative',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justifyContent: isImage(imageData.file)
+              ? 'space-between'
+              : 'flex-end',
             flexDirection: 'row',
             padding: '20px',
           }}>
-          <Slider
-            aria-label="Volume"
-            value={zoom}
-            onChange={onZoomSliderChange}
-            min={1}
-            max={5}
-            step={0.1}
-            sx={{ width: '30%', left: '50%', transform: 'translateX(-50%)' }}
-          />
+          {isImage(imageData.file) && (
+            <Slider
+              aria-label="Volume"
+              value={zoom}
+              onChange={onZoomSliderChange}
+              min={1}
+              max={5}
+              step={0.1}
+              sx={{ width: '30%', left: '50%', transform: 'translateX(-50%)' }}
+            />
+          )}
           <Box>
             <Button
               onClick={onResetClick}
