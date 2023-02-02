@@ -1,7 +1,7 @@
 import { FC, useState } from 'react';
 import { RaRecord, useInput, useGetOne } from 'react-admin';
 import { MediaLibraryModal } from './MediaLibraryModal';
-import { MediaLibraryImageButton } from './MediaLibraryImageButton';
+import { MediaLibraryButton } from './MediaLibraryButton';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 type MediaLibraryInputContentsProps = {
@@ -42,7 +42,7 @@ export const MediaLibraryInputContents: FC<MediaLibraryInputContentsProps> = ({
         source={source}
         onImageSelect={onImageSelect}
       />
-      <MediaLibraryImageButton
+      <MediaLibraryButton
         src={src}
         title={title}
         onClick={onImageClick}

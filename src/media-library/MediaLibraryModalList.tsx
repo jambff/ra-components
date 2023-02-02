@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { RaRecord, useListContext } from 'react-admin';
 import { Box, useTheme } from '@mui/material';
-import { MediaLibraryImageButton } from './MediaLibraryImageButton';
+import { MediaLibraryButton } from './MediaLibraryButton';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 type MediaLibraryModalListProps = {
@@ -55,7 +55,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <MediaLibraryImageButton
+            <MediaLibraryButton
               src={record.src}
               title={record.title}
               width={record.width}
