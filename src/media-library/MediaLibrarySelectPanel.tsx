@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, Fragment } from 'react';
 import { List, RaRecord } from 'react-admin';
 import { MediaLibraryModalList } from './MediaLibraryModalList';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
@@ -18,6 +18,8 @@ export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
     <List
       resource={resource}
       actions={false}
+      hasCreate={false}
+      empty={false}
       perPage={40}
       storeKey={`media-library-${resource}-${source}`}
       sort={sort}
