@@ -1,6 +1,6 @@
 {
   "name": "@jambff/ra-components",
-  "version": "1.13.2",
+  "version": "1.14.0",
   "author": "Alex Mendes",
   "license": "MIT",
   "main": "dist/index.js",
