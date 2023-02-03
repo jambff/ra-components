@@ -1,15 +1,17 @@
-import { FC } from 'react';
+import { Dispatch, FC, SetStateAction } from 'react';
 import { RaRecord, useListContext } from 'react-admin';
 import { Box, useTheme } from '@mui/material';
 import { MediaLibraryButton } from './MediaLibraryButton';
 import { useMediaLibraryContext } from './MediaLibraryProvider';
 
 type MediaLibraryModalListProps = {
-  onImageSelect: (record: RaRecord) => void;
+  selectedRecord?: RaRecord;
+  setSelectedRecord: Dispatch<SetStateAction<RaRecord>>;
 };
 
 export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
-  onImageSelect,
+  selectedRecord,
+  setSelectedRecord,
 }: MediaLibraryModalListProps) => {
   const { data } = useListContext();
   const theme = useTheme();
@@ -47,6 +49,10 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
             alignItems: 'center',
             justifyContent: 'center',
             border: `1px solid ${theme.palette.grey[300]}`,
+            boxShadow:
+              selectedRecord === record
+                ? `0 0 0 4px ${theme.palette.primary.main}`
+                : undefined,
             aspectRatio,
           }}>
           <div
@@ -62,7 +68,7 @@ export const MediaLibraryModalList: FC<MediaLibraryModalListProps> = ({
               height={record.height}
               crop={record.crop}
               onClick={() => {
-                onImageSelect(record);
+                setSelectedRecord(record);
               }}
             />
           </div>

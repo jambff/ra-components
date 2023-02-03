@@ -86,8 +86,22 @@ export const useSupabaseStorage = () => {
     [notify, uploadFile, getPublicUrl, accept],
   );
 
+  const remove = useCallback(
+    async (fileName: string) => {
+      const { error } = await supabase.storage
+        .from(bucket)
+        .remove([getFileLocation(fileName)]);
+
+      if (error) {
+        throw new Error(`Failed to remove file: ${error.message}`);
+      }
+    },
+    [bucket, getFileLocation, supabase.storage],
+  );
+
   return {
     upload,
+    remove,
     isUploading,
   };
 };
