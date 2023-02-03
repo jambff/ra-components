@@ -105,6 +105,11 @@ export const MediaLibrarySelectPanel: FC<MediaLibrarySelectPanelProps> = ({
                   marginRight: theme.spacing(2),
                   color: theme.palette.error.main,
                   borderColor: theme.palette.error.main,
+                  '&:hover': {
+                    backgroundColor: theme.palette.error.main,
+                    borderColor: theme.palette.error.main,
+                    color: 'white',
+                  },
                 }}
               />
               <Button
