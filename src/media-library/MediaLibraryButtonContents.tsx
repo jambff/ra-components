@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { MediaLibraryCroppedImage } from './MediaLibraryCroppedImage';
+import { MediaLibraryImg } from './MediaLibraryImg';
 import { MediaLibraryVideo } from './MediaLibraryVideo';
 import { isVideo } from './utils';
 
@@ -35,7 +35,7 @@ export const MediaLibraryButtonContents: FC<
   }
 
   return (
-    <MediaLibraryCroppedImage
+    <MediaLibraryImg
       src={src}
       title={title}
       width={width}

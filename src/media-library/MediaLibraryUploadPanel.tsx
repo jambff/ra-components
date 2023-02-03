@@ -47,7 +47,7 @@ const readFile = (file: File, element: HTMLImageElement | HTMLVideoElement) => {
   fileReader.readAsDataURL(file);
 };
 
-const createImageFromFile = async (file: File): Promise<FileDimensions> =>
+const createImageFromFile = async (file: File): Promise<HTMLImageElement> =>
   new Promise((resolve) => {
     const img = new Image();
 
@@ -58,14 +58,14 @@ const createImageFromFile = async (file: File): Promise<FileDimensions> =>
     readFile(file, img);
   });
 
-const createVideoFromFile = async (file: File): Promise<FileDimensions> =>
+const createVideoFromFile = async (file: File): Promise<HTMLVideoElement> =>
   new Promise((resolve) => {
     const video = document.createElement('video');
 
     video.addEventListener(
       'loadedmetadata',
       () => {
-        resolve({ height: video.videoHeight, width: video.videoWidth });
+        resolve(video);
       },
       false,
     );
@@ -73,19 +73,61 @@ const createVideoFromFile = async (file: File): Promise<FileDimensions> =>
     readFile(file, video);
   });
 
-const getFileDimensions = (file: File) => {
+const getFileDimensions = async (file: File): Promise<FileDimensions> => {
   if (isImage(file)) {
     return createImageFromFile(file);
   }
 
-  return createVideoFromFile(file);
+  const video = await createVideoFromFile(file);
+
+  return { height: video.videoHeight, width: video.videoWidth };
 };
 
-const getConvertedFileName = (file: File) => {
+const getConvertedFileName = (file: File, suffix?: string) => {
   const fileParts = file.name.split('.');
   const ext = fileParts.pop();
 
-  return `${paramCase(fileParts.join('.'))}.${ext}`;
+  return `${paramCase(fileParts.join('.'))}${suffix}.${ext}`;
+};
+
+const cropImage = async (file: File, cropArea: Area): Promise<File> => {
+  const image = await createImageFromFile(file);
+  const canvas = document.createElement('canvas');
+
+  canvas.width = cropArea.width;
+  canvas.height = cropArea.height;
+
+  const ctx = canvas.getContext('2d');
+
+  if (!ctx || !cropArea) {
+    return file;
+  }
+
+  ctx.drawImage(
+    image,
+    cropArea.x,
+    cropArea.y,
+    cropArea.width,
+    cropArea.height,
+    0,
+    0,
+    cropArea.width,
+    cropArea.height,
+  );
+
+  const blob: Blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((value: Blob) => {
+      if (value) {
+        resolve(value);
+
+        return;
+      }
+
+      reject(new Error('Failed to create blob from canvas'));
+    });
+  });
+
+  return new File([blob], 'fileName.jpg', { type: 'image/jpeg' });
 };
 
 export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
@@ -110,14 +152,43 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
   const notify = useNotify();
   const theme = useTheme();
 
-  const save = useCallback(
+  const getFinalImageData = useCallback(
     async (data?: FileData) => {
-      const finalImageData = data ?? imageData;
+      let finalImageData: FileData | undefined = data ?? imageData;
 
       if (!finalImageData) {
-        throw new Error('Failed to crop as image data is not available yet');
+        throw new Error('Failed to get image data');
       }
 
+      if (croppedAreaPixels) {
+        const fileNameSuffix = [
+          '',
+          croppedAreaPixels.x,
+          croppedAreaPixels.y,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height,
+        ].join('_');
+
+        try {
+          finalImageData = await upload(
+            await cropImage(finalImageData.file, croppedAreaPixels),
+            getConvertedFileName(finalImageData.file, fileNameSuffix),
+          );
+        } catch (err) {
+          notify(err.message, { type: 'error' });
+
+          throw new Error('Failed to upload cropped image');
+        }
+      }
+
+      return finalImageData;
+    },
+    [imageData, croppedAreaPixels, notify, upload],
+  );
+
+  const save = useCallback(
+    async (data?: FileData) => {
+      const finalImageData = await getFinalImageData(data);
       const { publicUrl, file } = finalImageData;
       const { width, height } = await getFileDimensions(file);
 
@@ -129,14 +200,6 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
             title: file.name.replace(/\.[^.]*$/, ''),
             width,
             height,
-            crop: croppedAreaPixels
-              ? [
-                  croppedAreaPixels.x,
-                  croppedAreaPixels.y,
-                  croppedAreaPixels.width,
-                  croppedAreaPixels.height,
-                ]
-              : undefined,
           },
         },
         {
@@ -144,14 +207,7 @@ export const MediaLibraryUploadPanel: FC<MediaLibraryUploadPanelProps> = ({
         },
       );
     },
-    [
-      create,
-      resource,
-      imageData,
-      onImageSelect,
-      croppedAreaPixels,
-      parseImageUrl,
-    ],
+    [create, resource, onImageSelect, parseImageUrl, getFinalImageData],
   );
 
   const onSaveClick = useCallback(() => {

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { useRecordContext } from 'react-admin';
-import { MediaLibraryCroppedImage } from './MediaLibraryCroppedImage';
+import { MediaLibraryImg } from './MediaLibraryImg';
 import { isVideo } from './utils';
 import { MediaLibraryVideo } from './MediaLibraryVideo';
 
@@ -19,7 +19,7 @@ export const MediaLibraryRecordImageField: FC<
       {isVideo(src) ? (
         <MediaLibraryVideo src={src} />
       ) : (
-        <MediaLibraryCroppedImage
+        <MediaLibraryImg
           src={src}
           title={title}
           width={width}
