@@ -13,7 +13,7 @@ import {
 
 type CreateFormProps = Omit<CreateProps, 'resource'> & {
   children: ReactNode;
-  form?: SimpleFormProps;
+  form?: Omit<SimpleFormProps, 'children'>;
 };
 
 export const CreateForm: FC<CreateFormProps> = ({
