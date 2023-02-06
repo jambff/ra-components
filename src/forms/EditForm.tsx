@@ -12,6 +12,7 @@ import {
   useRedirect,
   useResourceContext,
 } from 'react-admin';
+import { Box } from '@mui/material';
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
@@ -26,10 +27,18 @@ const Title = ({ source }: { source?: string }) => {
   const resource = useResourceContext();
 
   return (
-    <span>
-      Edit {getResourceLabel(resource)} -{' '}
-      {record && source ? `${record[source]}` : record.id}
-    </span>
+    <Box
+      sx={{
+        maxWidth: 500,
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+      }}>
+      Edit {getResourceLabel(resource)}
+      <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+        - {record && source ? `${record[source]}` : record.id}
+      </Box>
+    </Box>
   );
 };
 
