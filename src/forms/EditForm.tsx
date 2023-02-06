@@ -35,9 +35,11 @@ const Title = ({ source }: { source?: string }) => {
         whiteSpace: 'nowrap',
       }}>
       Edit {getResourceLabel(resource)}
-      <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
-        - {record && source ? `${record[source]}` : record.id}
-      </Box>
+      {record && (
+        <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+          - {source ? `${record[source]}` : record.id}
+        </Box>
+      )}
     </Box>
   );
 };
