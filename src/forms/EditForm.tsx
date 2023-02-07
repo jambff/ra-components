@@ -36,7 +36,7 @@ const Title = ({ source }: { source?: string }) => {
       }}>
       Edit {getResourceLabel(resource)}
       {record && (
-        <Box sx={{ display: { xs: 'none', xl: 'block' } }}>
+        <Box sx={{ display: { xs: 'none', xl: 'inline-block' } }}>
           - {source ? `${record[source]}` : record.id}
         </Box>
       )}
