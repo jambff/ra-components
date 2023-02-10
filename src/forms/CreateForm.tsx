@@ -11,25 +11,25 @@ import {
   useCreate,
   useNotify,
   useRedirect,
+  useResourceContext,
 } from 'react-admin';
 import { useFormContext } from './FormProvider';
 
 type CreateFormProps = Omit<CreateProps, 'resource'> & {
   children: ReactNode;
   form?: Omit<SimpleFormProps, 'children'>;
-  resource: string;
 };
 
 export const CreateForm: FC<CreateFormProps> = ({
   children,
   form,
-  resource,
   ...restProps
 }: CreateFormProps) => {
   const notify = useNotify();
   const redirect = useRedirect();
   const [create] = useCreate();
   const { onError } = useFormContext();
+  const resource = useResourceContext();
 
   const onSubmit = useCallback(
     async (values: Partial<CreateParams<RaRecord>>) => {

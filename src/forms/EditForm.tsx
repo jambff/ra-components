@@ -10,26 +10,26 @@ import {
   SimpleFormProps,
   useNotify,
   useRedirect,
+  useResourceContext,
   useUpdate,
 } from 'react-admin';
 import { useFormContext } from './FormProvider';
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
-  resource: string;
   form?: Omit<SimpleFormProps, 'children'>;
 };
 
 export const EditForm: FC<EditFormProps> = ({
   children,
   form,
-  resource,
   ...restProps
 }: EditFormProps) => {
   const notify = useNotify();
   const redirect = useRedirect();
   const { onError } = useFormContext();
   const [update] = useUpdate();
+  const resource = useResourceContext();
 
   const onSubmit = useCallback(
     async (values: Partial<CreateParams<RaRecord>>) => {
