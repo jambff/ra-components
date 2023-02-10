@@ -9,6 +9,7 @@ import {
   SimpleForm,
   SimpleFormProps,
   useNotify,
+  useRecordContext,
   useRedirect,
   useResourceContext,
   useUpdate,
@@ -30,6 +31,7 @@ export const EditForm: FC<EditFormProps> = ({
   const { onError } = useFormContext();
   const [update] = useUpdate();
   const resource = useResourceContext();
+  const record = useRecordContext();
 
   const onSuccess = useCallback(
     (data: RaRecord) => {
@@ -48,7 +50,7 @@ export const EditForm: FC<EditFormProps> = ({
       try {
         await update(
           resource,
-          { data: values },
+          { id: record.id, data: values, previousData: record },
           {
             returnPromise: true,
             onSuccess,
