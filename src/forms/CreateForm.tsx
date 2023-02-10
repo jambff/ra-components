@@ -31,6 +31,18 @@ export const CreateForm: FC<CreateFormProps> = ({
   const { onError } = useFormContext();
   const resource = useResourceContext();
 
+  const onSuccess = useCallback(
+    (data: RaRecord) => {
+      if (!resource) {
+        throw new Error('No resource found');
+      }
+
+      notify(`${capitalCase(singular(resource))} created`);
+      redirect('list', resource, data.id, data);
+    },
+    [resource, redirect, notify],
+  );
+
   const onSubmit = useCallback(
     async (values: Partial<CreateParams<RaRecord>>) => {
       try {
@@ -39,14 +51,7 @@ export const CreateForm: FC<CreateFormProps> = ({
           { data: values },
           {
             returnPromise: true,
-            onSuccess: (data: RaRecord) => {
-              if (!resource) {
-                throw new Error('No resource found');
-              }
-
-              notify(`${capitalCase(singular(resource))} created`);
-              redirect('list', resource, data.id, data);
-            },
+            onSuccess,
           },
         );
       } catch (error: any) {
@@ -59,11 +64,11 @@ export const CreateForm: FC<CreateFormProps> = ({
 
       return null;
     },
-    [create, notify, redirect, resource, onError],
+    [create, onSuccess, resource, onError],
   );
 
   return (
-    <Create {...restProps}>
+    <Create mutationOptions={{ onSuccess }} {...restProps}>
       <SimpleForm warnWhenUnsavedChanges onSubmit={onSubmit} {...form}>
         {children}
       </SimpleForm>

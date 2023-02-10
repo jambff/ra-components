@@ -31,6 +31,18 @@ export const EditForm: FC<EditFormProps> = ({
   const [update] = useUpdate();
   const resource = useResourceContext();
 
+  const onSuccess = useCallback(
+    (data: RaRecord) => {
+      if (!resource) {
+        throw new Error('No resource found');
+      }
+
+      notify(`${capitalCase(singular(resource))} updated`);
+      redirect('list', resource, data.id, data);
+    },
+    [resource, redirect, notify],
+  );
+
   const onSubmit = useCallback(
     async (values: Partial<CreateParams<RaRecord>>) => {
       try {
@@ -39,14 +51,7 @@ export const EditForm: FC<EditFormProps> = ({
           { data: values },
           {
             returnPromise: true,
-            onSuccess: (data: RaRecord) => {
-              if (!resource) {
-                throw new Error('No resource found');
-              }
-
-              notify(`${capitalCase(singular(resource))} created`);
-              redirect('list', resource, data.id, data);
-            },
+            onSuccess,
           },
         );
       } catch (error: any) {
@@ -59,11 +64,14 @@ export const EditForm: FC<EditFormProps> = ({
 
       return null;
     },
-    [update, notify, redirect, resource, onError],
+    [update, onSuccess, resource, onError],
   );
 
   return (
-    <Edit mutationMode="pessimistic" {...restProps}>
+    <Edit
+      mutationMode="pessimistic"
+      mutationOptions={{ onSuccess }}
+      {...restProps}>
       <SimpleForm warnWhenUnsavedChanges onSubmit={onSubmit} {...form}>
         {children}
       </SimpleForm>
