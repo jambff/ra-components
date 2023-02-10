@@ -3,12 +3,10 @@ import { singular } from 'pluralize';
 import { capitalCase } from 'change-case';
 import {
   Create,
-  CreateParams,
   CreateProps,
   RaRecord,
   SimpleForm,
   SimpleFormProps,
-  useCreate,
   useNotify,
   useRedirect,
   useResourceContext,
@@ -27,7 +25,6 @@ export const CreateForm: FC<CreateFormProps> = ({
 }: CreateFormProps) => {
   const notify = useNotify();
   const redirect = useRedirect();
-  const [create] = useCreate();
   const { onError } = useFormContext();
   const resource = useResourceContext();
 
@@ -43,33 +40,9 @@ export const CreateForm: FC<CreateFormProps> = ({
     [resource, redirect, notify],
   );
 
-  const onSubmit = useCallback(
-    async (values: Partial<CreateParams<RaRecord>>) => {
-      try {
-        await create(
-          resource,
-          { data: values },
-          {
-            returnPromise: true,
-            onSuccess,
-          },
-        );
-      } catch (error: any) {
-        if (onError) {
-          return onError(error);
-        }
-
-        throw error;
-      }
-
-      return null;
-    },
-    [create, onSuccess, resource, onError],
-  );
-
   return (
-    <Create mutationOptions={{ onSuccess }} {...restProps}>
-      <SimpleForm warnWhenUnsavedChanges onSubmit={onSubmit} {...form}>
+    <Create mutationOptions={{ onSuccess, onError }} {...restProps}>
+      <SimpleForm warnWhenUnsavedChanges {...form}>
         {children}
       </SimpleForm>
     </Create>

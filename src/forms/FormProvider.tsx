@@ -1,11 +1,11 @@
 import { createContext, FC, ReactNode, useContext, useMemo } from 'react';
 
 type FormOptions = {
-  onError?: (err: unknown) => Record<string, string>;
+  onError?: (err: unknown) => Promise<Record<string, string>>;
 };
 
 export const FormContext = createContext<FormOptions>({
-  onError: () => ({}),
+  onError: async () => ({}),
 });
 
 type FormProviderProps = FormOptions & {
