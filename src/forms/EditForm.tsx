@@ -1,7 +1,8 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode, useCallback } from 'react';
 import { singular } from 'pluralize';
 import { capitalCase } from 'change-case';
 import {
+  CreateParams,
   Edit,
   EditProps,
   RaRecord,
@@ -9,38 +10,59 @@ import {
   SimpleFormProps,
   useNotify,
   useRedirect,
+  useUpdate,
 } from 'react-admin';
+import { useFormContext } from './FormProvider';
 
 type EditFormProps = Omit<EditProps, 'resource'> & {
   children: ReactNode;
+  resource: string;
   form?: Omit<SimpleFormProps, 'children'>;
 };
-
-const getResourceLabel = (resource: string) => capitalCase(singular(resource));
 
 export const EditForm: FC<EditFormProps> = ({
   children,
   form,
+  resource,
   ...restProps
 }: EditFormProps) => {
   const notify = useNotify();
   const redirect = useRedirect();
+  const { onError } = useFormContext();
+  const [update] = useUpdate();
 
-  const onSuccess = (data: RaRecord, { resource }: { resource?: string }) => {
-    if (!resource) {
-      throw new Error('No resource found');
-    }
+  const onSubmit = useCallback(
+    async (values: Partial<CreateParams<RaRecord>>) => {
+      try {
+        await update(
+          resource,
+          { data: values },
+          {
+            returnPromise: true,
+            onSuccess: (data: RaRecord) => {
+              if (!resource) {
+                throw new Error('No resource found');
+              }
 
-    notify(`${getResourceLabel(resource)} updated`);
-    redirect('list', resource, data.id, data);
-  };
+              notify(`${capitalCase(singular(resource))} created`);
+              redirect('list', resource, data.id, data);
+            },
+          },
+        );
+      } catch (error: any) {
+        if (onError) {
+          onError(error);
+        }
+
+        throw error;
+      }
+    },
+    [update, notify, redirect, resource, onError],
+  );
 
   return (
-    <Edit
-      mutationOptions={{ onSuccess }}
-      mutationMode="pessimistic"
-      {...restProps}>
-      <SimpleForm warnWhenUnsavedChanges {...form}>
+    <Edit mutationMode="pessimistic" {...restProps}>
+      <SimpleForm warnWhenUnsavedChanges onSubmit={onSubmit} {...form}>
         {children}
       </SimpleForm>
     </Edit>
