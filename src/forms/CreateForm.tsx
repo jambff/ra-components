@@ -51,11 +51,13 @@ export const CreateForm: FC<CreateFormProps> = ({
         );
       } catch (error: any) {
         if (onError) {
-          onError(error);
+          return onError(error);
         }
 
         throw error;
       }
+
+      return null;
     },
     [create, notify, redirect, resource, onError],
   );

@@ -51,11 +51,13 @@ export const EditForm: FC<EditFormProps> = ({
         );
       } catch (error: any) {
         if (onError) {
-          onError(error);
+          return onError(error);
         }
 
         throw error;
       }
+
+      return null;
     },
     [update, notify, redirect, resource, onError],
   );
